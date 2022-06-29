@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocker Client</title>
+    <style>
+        .slider {
+            -webkit-appearance: none;
+            background: #d3d3d3;
+            opacity: 1;
+            border-radius: 10px;
+        }
+      </style>
+</head>
+<body>
+    <button onmousedown="forward()">Forward</button></br>
+    <button onmousedown="stop()">Stop</button></br>
+    <button onmousedown="backward()">Backward</button></br>
+    <input type="range" min="-50" max="50" step="1" value="0" class="slider" oninput="steer(this.value)" onchange="steer(this.value)">
+</body>
+
+<script>
+    var ip = 'ws://10.72.5.102:8080';
+    var socket = new WebSocket(ip);
+
+    reconnect()
+
+    function forward(){
+        socket.send("w");
+        reconnect();
+    }
+
+    function backward(){
+        socket.send("s");
+        reconnect();
+    }
+
+    function stop(){
+        socket.send("");
+        reconnect();
+    }
+
+    function steer(val){
+        socket.send(val);
+        reconnect();
+    }
+
+
+
+function reconnect(){
+    socket.addEventListener('open', function (event) {
+    socket.send('Connection Established');
+    });
+
+    socket.addEventListener('close', function close(code, reason) {
+    console.log('ws is closed with code: ' + code + ' reason: ' + reason);
+    socket=new WebSocket(ip);
+    });
+
+    // On Error
+    socket.addEventListener('error', function(e) {
+        console.log("error occured" +e);
+    });
+    
+
+    socket.addEventListener('message', function (event) {
+        console.log(event.data);
+
+    });
+}
+
+
+
+</script>
+
+</html>
